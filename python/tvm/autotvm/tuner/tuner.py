@@ -21,13 +21,17 @@ import tempfile
 
 import numpy as np
 
-from ..measure import MeasureInput, create_measure_batch
+from ..measure import MeasureInput, MeasureResult, create_measure_batch
 from ..utils import format_si_prefix
 
 from ..env import GLOBAL_SCOPE
 
 logger = logging.getLogger("autotvm")
 
+from ..measure.measure_3la import measure_on_hlscnn
+from tvm.contrib.popen_pool import PopenPoolExecutor
+from extmapper.mem_simulators.hlscnn_mem_sim import HLSCNNConv2DMemSimulator
+from math import ceil
 
 class Tuner(object):
     """Base class for tuners
@@ -130,9 +134,13 @@ class Tuner(object):
                 break
 
             configs = self.next_batch(min(n_parallel, n_trial - i))
+            # print(configs)
 
             inputs = [MeasureInput(self.task.target, self.task, config) for config in configs]
-            results = measure_batch(inputs)
+            if "hlscnn" in inputs[0].task.name:
+                results = measure_on_hlscnn(inputs, n_parallel)
+            else:
+                results = measure_batch(inputs)
 
             # keep best config
             for k, (inp, res) in enumerate(zip(inputs, results)):
