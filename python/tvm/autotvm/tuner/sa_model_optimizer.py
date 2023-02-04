@@ -64,7 +64,7 @@ class SimulatedAnnealingOptimizer(ModelOptimizer):
         self.temp = temp
         self.persistent = persistent
         self.parallel_size = min(parallel_size, len(self.task.config_space))
-        self.early_stop = early_stop or 1e9
+        self.early_stop = early_stop or 1e12
         self.log_interval = log_interval
         self.points = None
 

@@ -36,7 +36,7 @@ def max_curve(trial_scores):
         function values
     """
     ret = np.empty(len(trial_scores))
-    keep = -1e9
+    keep = -1e12
     for i, score in enumerate(trial_scores):
         keep = max(keep, score)
         ret[i] = keep

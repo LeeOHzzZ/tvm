@@ -97,7 +97,7 @@ def encode(inp, result, protocol="json"):
             "input": (str(inp.target), inp.task.name, inp.task.args, inp.task.kwargs),
             "config": inp.config.to_json_dict(),
             "result": (
-                result.costs if result.error_no == 0 else (1e9,),
+                result.costs if result.error_no == 0 else (1e12,),
                 result.error_no,
                 result.all_cost,
                 result.timestamp,

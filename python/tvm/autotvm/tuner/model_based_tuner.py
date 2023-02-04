@@ -337,7 +337,7 @@ def submodular_pick(scores, knobs, n_pick, knob_weight=1.0):
 
     for _ in range(n_pick):
         max_x = -1
-        max_delta = -1e9
+        max_delta = -1e12
 
         for x in remain:
             tmp_delta = scores[x]

@@ -117,7 +117,7 @@ class Tuner(object):
         """
         measure_batch = create_measure_batch(self.task, measure_option)
         n_parallel = getattr(measure_batch, "n_parallel", 1)
-        early_stopping = early_stopping or 1e9
+        early_stopping = early_stopping or 1e12
         self.n_trial = n_trial
         self.early_stopping = early_stopping
 
