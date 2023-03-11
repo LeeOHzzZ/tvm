@@ -5,7 +5,7 @@ from tvm import te, topi
 from tvm import autotvm
 
 
-@autotvm.template("conv2d_on_hlscnn")
+@autotvm.template("conv2d_on_3la_hlscnn")
 def conv2d_no_batching(N, H, W, CO, CI, KH, KW, stride, padding):
     assert N == 1, "Only consider batch_size = 1 in this template"
     assert padding == 0, "HLSCNN does not support padding"
@@ -14,9 +14,6 @@ def conv2d_no_batching(N, H, W, CO, CI, KH, KW, stride, padding):
     kernel = te.placeholder((CO, CI, KH, KW), name="kernel")
     conv = topi.nn.conv2d_nchw(data, kernel, stride, padding, dilation=1, out_dtype="float32")
     s = te.create_schedule([conv.op])
-    print(s)
-    print(s[conv].op.axis)
-    print(s[conv].op.reduce_axis)
 
     n, f, h, w = s[conv].op.axis
     c, kh, kw = s[conv].op.reduce_axis

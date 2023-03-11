@@ -28,10 +28,11 @@ from ..env import GLOBAL_SCOPE
 
 logger = logging.getLogger("autotvm")
 
-from ..measure.measure_3la import measure_on_hlscnn
+from ..measure.measure_3la import measure_on_hlscnn, measure_on_flexasr, measure_on_vta
 from tvm.contrib.popen_pool import PopenPoolExecutor
 from extmapper.mem_simulators.hlscnn_mem_sim import HLSCNNConv2DMemSimulator
 from math import ceil
+
 
 class Tuner(object):
     """Base class for tuners
@@ -137,8 +138,12 @@ class Tuner(object):
             # print(configs)
 
             inputs = [MeasureInput(self.task.target, self.task, config) for config in configs]
-            if "hlscnn" in inputs[0].task.name:
+            if "3la_hlscnn" in inputs[0].task.name:
                 results = measure_on_hlscnn(inputs, n_parallel)
+            elif "3la_flexasr" in inputs[0].task.name:
+                results = measure_on_flexasr(inputs, n_parallel)
+            elif "3la_vta" in inputs[0].task.name:
+                results = measure_on_vta(inputs, n_parallel)
             else:
                 results = measure_batch(inputs)
 
