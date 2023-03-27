@@ -24,9 +24,28 @@ def conv2d_no_batching_im2col(N, H, W, CO, CI, KH, KW, stride, padding):
     x = s[dense].op.reduce_axis[0]
 
     cfg = autotvm.get_config()
-    cfg.define_split("tile_b", b, num_outputs=2, policy="verbose")
-    cfg.define_split("tile_y", y, num_outputs=2, policy="verbose")
-    cfg.define_split("tile_x", x, num_outputs=2, policy="verbose")
+    # define the tile size search space for each axis as full scan of the search space
+    cfg.define_split(
+        "tile_b",
+        b,
+        num_outputs=2,
+        policy="candidate",
+        candidate=list((-1, i) for i in range(1, batch + 1)),
+    )
+    cfg.define_split(
+        "tile_y",
+        y,
+        num_outputs=2,
+        policy="candidate",
+        candidate=list((-1, i) for i in range(1, out_dim + 1)),
+    )
+    cfg.define_split(
+        "tile_x",
+        x,
+        num_outputs=2,
+        policy="candidate",
+        candidate=list((-1, i) for i in range(1, in_dim + 1)),
+    )
 
     bo, bi = cfg["tile_b"].apply(s, dense, b)
     yo, yi = cfg["tile_y"].apply(s, dense, y)

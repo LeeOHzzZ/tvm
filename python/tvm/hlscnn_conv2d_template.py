@@ -19,10 +19,35 @@ def conv2d_no_batching(N, H, W, CO, CI, KH, KW, stride, padding):
     c, kh, kw = s[conv].op.reduce_axis
 
     cfg = autotvm.get_config()
-    cfg.define_split("tile_f", f, num_outputs=2, policy="verbose")
-    cfg.define_split("tile_h", h, num_outputs=2, policy="verbose")
-    cfg.define_split("tile_w", w, num_outputs=2, policy="verbose")
-    cfg.define_split("tile_c", c, num_outputs=2, policy="verbose")
+    # define the tile sizes candidates for each axis as a full scan of the search space
+    cfg.define_split(
+        "tile_f",
+        f,
+        num_outputs=2,
+        policy="candidate",
+        candidate=list((-1, i) for i in range(1, CO + 1)),
+    )
+    cfg.define_split(
+        "tile_h",
+        h,
+        num_outputs=2,
+        policy="candidate",
+        candidate=list((-1, i) for i in range(1, H + 1)),
+    )
+    cfg.define_split(
+        "tile_w",
+        w,
+        num_outputs=2,
+        policy="candidate",
+        candidate=list((-1, i) for i in range(1, W + 1)),
+    )
+    cfg.define_split(
+        "tile_c",
+        c,
+        num_outputs=2,
+        policy="candidate",
+        candidate=list((-1, i) for i in range(1, CI + 1)),
+    )
 
     fo, fi = cfg["tile_f"].apply(s, conv, f)
     co, ci = cfg["tile_c"].apply(s, conv, c)
