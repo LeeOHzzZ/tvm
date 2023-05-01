@@ -118,6 +118,7 @@ class Tuner(object):
         """
         measure_batch = create_measure_batch(self.task, measure_option)
         n_parallel = getattr(measure_batch, "n_parallel", 1)
+        print(f"\t== running on ** {n_parallel} ** threads in parallel")
         early_stopping = early_stopping or 1e12
         self.n_trial = n_trial
         self.early_stopping = early_stopping
@@ -191,7 +192,8 @@ class Tuner(object):
                 logger.debug("Early stopped. Best iter: %d.", self.best_iter)
                 break
 
-            if error_ct > self.error_ct_threshold:
+            # disabling this
+            if False and error_ct > self.error_ct_threshold:
                 logging.basicConfig()
                 logger.warning("Too many errors happen in the tuning. Switching to debug mode.")
                 logger.setLevel(logging.DEBUG)

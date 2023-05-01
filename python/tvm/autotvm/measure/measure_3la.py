@@ -8,7 +8,9 @@ from .measure import MeasureErrorNo, MeasureInput, MeasureResult
 from extmapper.mem_simulators.hlscnn_mem_sim import HLSCNNConv2DMemSimulator
 from extmapper.mem_simulators.flexasr_mem_sim import FlexASRLinearLayerMemSimulator
 from extmapper.mem_simulators.vta_mem_sim import VTAGEMMMemSimulator
+from extmapper.mem_simulators.hlscnn_single_spad_mem_sim import HLSCNNConv2DMemSimulator_MemAnalysis
 from extmapper.hw_models.hlscnn_model import HLSCNNModel as hlscnn
+from extmapper.hw_models.hlscnn_model import HLSCNNModel_singleSPAD as hlscnn_single_spad
 from extmapper.hw_models.flexasr_model import FlexASRModel as flexasr
 from math import ceil
 
@@ -45,10 +47,17 @@ def hlscnn_sim(measure_input):
     }
     loopBound = tuple(loop_bound_dict[i] for i in loopOrder)
     schedule = (loopOrder, loopBound, tc, tk, th, tw)
-    mem_partition = (hlscnn.SPAD1_SIZE // 2, hlscnn.SPAD1_SIZE // 2)
-    hlscnn_mem_simulator = HLSCNNConv2DMemSimulator(
-        layer_info=layer_info, schedule=schedule, act_mem_part=mem_partition
-    )
+    if "single_spad" in measure_input.task.name:
+        print("running hlscnn single spad...")
+        mem_partition = [hlscnn_single_spad.SPAD_SIZE // 3] * 3
+        hlscnn_mem_simulator = HLSCNNConv2DMemSimulator_MemAnalysis(
+            layer_info=layer_info, schedule=schedule, mem_partition=mem_partition
+        )
+    else:
+        mem_partition = (hlscnn.SPAD1_SIZE // 2, hlscnn.SPAD1_SIZE // 2)
+        hlscnn_mem_simulator = HLSCNNConv2DMemSimulator(
+            layer_info=layer_info, schedule=schedule, act_mem_part=mem_partition
+        )
     try:
         # result = hlscnn_mem_simulator.run()
         result = hlscnn_mem_simulator.fast_sim()
